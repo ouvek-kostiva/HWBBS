@@ -1,5 +1,5 @@
 # HWBBS
-A simple bbs written in java
+A simple bbs written in java using netbeans
 
 ## Commands
 * _/Help_ : Show all commands
