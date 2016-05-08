@@ -247,7 +247,7 @@ class ClientThread extends Thread{
                             }
                             break;
                         case "-Page":
-                            if(!"/Page".equals(str)){
+                            if(!"/Page".equals(str) && !"/".equals(str.substring(0,1))){
                                 page = Integer.parseInt(str);
                                 out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
                                 out.println("~---------------------------------------------------------------------~");
@@ -269,7 +269,7 @@ class ClientThread extends Thread{
                             }
                             break;
                         case "-Read":
-                            if(!"/Read".equals(str)){
+                            if(!"/Read".equals(str) && !"/".equals(str.substring(0,1))){
                                 post = Integer.parseInt(str);
                                 out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
                                 out.println("~---------------------------------------------------------------------~");
@@ -322,6 +322,7 @@ class ClientThread extends Thread{
                                     cookie = "";
                                 }else{
                                     out.println(content + " : " + A + "A" + B + "B");
+                                    out.print("Answer:");
                                     out.flush();
                                 }
                                 content = "";
@@ -429,6 +430,7 @@ class ClientThread extends Thread{
             ResultSetMetaData rsmeta = rs.getMetaData();
             int cols = rsmeta.getColumnCount();
             if(postexist == 1){
+                content = "";
                 while(rs.next()){
                     if(rs.getString("title").length() <= 20){
                         if(rs.getString("content").length() <= 40){
@@ -496,6 +498,7 @@ class ClientThread extends Thread{
                 int userid = po.getInt("userid");
                 ResultSet usrrs =  stmt.executeQuery("SELECT username FROM users WHERE userid =" + userid +";");
                 String username = usrrs.getString("username");
+                content = "";
                 content = content + "Post id : " + po.getInt("post_id") + "  Post Time : " + po.getString("posttime") + "\n";
                 content = content + "Author : " + username + "\n";
                 content = content + "Title : " + po.getString("title") + "\n";
