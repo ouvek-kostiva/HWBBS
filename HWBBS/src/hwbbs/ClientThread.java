@@ -108,7 +108,8 @@ class ClientThread extends Thread{
                             out.flush();
                             break;
                         case "Read":
-                            out.println("Not implemented yet.");
+                            cookie = "-Read";
+                            out.print("Read Post by id: ");
                             out.flush();
                             break;
                         case "Signup":
@@ -136,6 +137,12 @@ class ClientThread extends Thread{
                             cookie = "g1A1B";
                             out.println("Loading game 1A1B ...");out.flush();
                             content = str;
+                            break;
+                        case "NewPost":
+                            if("-Anon".equals(logged)){
+                                out.println("You must login first to post!");
+                                out.flush();
+                            }
                             break;
                         default:
                             out.println();out.flush();
@@ -231,12 +238,14 @@ class ClientThread extends Thread{
                                 postTitle = str;
                                 break;
                             }
+                            break;
                         case "-PostContent":
                             if(!"/PostContent".equals(str) && !postLag.equals(str) && !"/PostEnd".equals(str)){
                                 postLag = str;
                                 postContent = postContent + postLag;
                                 break;
                             }
+                            break;
                         case "-Page":
                             if(!"/Page".equals(str)){
                                 page = Integer.parseInt(str);
@@ -255,7 +264,25 @@ class ClientThread extends Thread{
                                     out.flush();
                                 }
                                 out.flush();
+                                cookie = "";
                                 break;
+                            }
+                            break;
+                        case "-Read":
+                            if(!"/Read".equals(str)){
+                                post = Integer.parseInt(str);
+                                out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+                                out.println("~---------------------------------------------------------------------~");
+                                boolean ifExist = readPosts(post);
+                                if(ifExist){
+                                    out.print(content);
+                                    out.println("~---------------------------------------------------------------------~");
+                                    out.flush();
+                                }else{
+                                    out.println("~---------------------------------------------------------------------~");
+                                    out.println("Post does not exist");
+                                    out.flush();
+                                }
                             }
                             break;
                         case "g1A1B":
@@ -291,10 +318,11 @@ class ClientThread extends Thread{
                                     }
                                     out.println("Congratulations! The answer is " + ans);
                                     out.println();
-                                    out.println("/1A1B : Number guessing game");
-                                    out.print("Choose game:");
                                     out.flush();
-                                    cookie = "-Game";
+                                    cookie = "";
+                                }else{
+                                    out.println(content + " : " + A + "A" + B + "B");
+                                    out.flush();
                                 }
                                 content = "";
                             }
@@ -406,14 +434,14 @@ class ClientThread extends Thread{
                         if(rs.getString("content").length() <= 40){
                             content = content + rs.getInt("post_id") + "       " + rs.getString("title") + "\t\t" + rs.getString("content") +"\r\n";
                         }else{
-                            content = content + rs.getInt("post_id") + "       " + rs.getString("title") + "\t\t" + rs.getString("content").substring(0, 41) +"\r\n";
+                            content = content + rs.getInt("post_id") + "       " + rs.getString("title") + "\t\t" + rs.getString("content").substring(0, 35) +"\r\n";
                         }
                         
                     }else{
                         if(rs.getString("content").length() <= 40){
                             content = content + rs.getInt("post_id") + "       " + rs.getString("title").substring(0, 21) + "\t\t" + rs.getString("content") +"\r\n";
                         }else{
-                            content = content + rs.getInt("post_id") + "       " + rs.getString("title").substring(0, 21) + "\t\t" + rs.getString("content").substring(0, 41) +"\r\n";
+                            content = content + rs.getInt("post_id") + "       " + rs.getString("title").substring(0, 21) + "\t\t" + rs.getString("content").substring(0, 35) +"\r\n";
                         }
                         
                     }
@@ -445,6 +473,43 @@ class ClientThread extends Thread{
         }
         
         return abgame;
+    }
+
+    private boolean readPosts(int post) {
+        try{
+            Connection c = null;
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:hwbbs.db");
+            c.setAutoCommit(false);
+            System.out.println(usernum + " Opened database successfully: readPosts");
+            Statement stmt = null;
+            stmt = c.createStatement();
+            PreparedStatement readpost = c.prepareStatement("SELECT EXISTS(SELECT * FROM posts WHERE post_id = ?)");
+            readpost.setInt(1, post);
+            ResultSet rs = readpost.executeQuery();
+            int postexist = rs.getInt("EXISTS(SELECT * FROM posts WHERE post_id = ?)");
+            if(postexist == 1){
+                System.out.println("Read Post Exist");
+                readpost = c.prepareStatement("SELECT * FROM posts WHERE post_id = ?");
+                readpost.setInt(1, post);
+                ResultSet po = readpost.executeQuery();
+                int userid = po.getInt("userid");
+                ResultSet usrrs =  stmt.executeQuery("SELECT username FROM users WHERE userid =" + userid +";");
+                String username = usrrs.getString("username");
+                content = content + "Post id : " + po.getInt("post_id") + "  Post Time : " + po.getString("posttime") + "\n";
+                content = content + "Author : " + username + "\n";
+                content = content + "Title : " + po.getString("title") + "\n";
+                content = content + "Content : \n" + po.getString("content") + "\n";
+                return true;
+                
+            }else{
+                System.out.println("Read Post Doesn't Exist");
+                return false;
+            }
+        }catch(Exception e){
+            System.err.println(usernum + " " + e.getClass().getName() + ": " + e.getMessage() );
+            return false;
+        }
     }
 
 }//class
