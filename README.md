@@ -9,7 +9,5 @@ A simple bbs written in java
 * _/Page_ : Show different number of posts by tens
 * _/NewPost_ : Publish new post (Login Required)
 * _/QuitNow_ : Disconnect from server
-
-## Not yet implemented
-* /Game : Play Game
-* /Read : Read Post by id
+* _/Game_ : Play Game
+* _/Read_ : Read Post by id
