@@ -95,10 +95,10 @@ class SynchronisedThread {
             c.setAutoCommit(false);
             System.out.println("Opened database successfully:insertPost");
             
-            ResultSet rs = c.createStatement().executeQuery("SELECT COUNT(*) FROM posts;");
+            ResultSet rs = c.createStatement().executeQuery("SELECT post_id FROM posts ORDER BY post_id DESC LIMIT 1;");
             int post_id = 0;
             if(rs.next()){
-                post_id = rs.getInt("COUNT(*)");
+                post_id = rs.getInt("post_id");
             }else{
                 post_id = post_id + 1;
             }
