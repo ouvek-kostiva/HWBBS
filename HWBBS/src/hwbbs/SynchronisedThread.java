@@ -108,6 +108,7 @@ class SynchronisedThread {
             ResultSet chkusrrs = checkusr.executeQuery();
             int userid = chkusrrs.getInt("userid");
             
+            c.commit();
             
             PreparedStatement insertpost = c.prepareStatement("INSERT INTO posts VALUES (?,?,?,?,?);");
             
