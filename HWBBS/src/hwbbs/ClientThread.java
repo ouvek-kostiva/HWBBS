@@ -44,14 +44,22 @@ class ClientThread extends Thread{
             BufferedReader in = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
             PrintWriter out = new PrintWriter(new OutputStreamWriter(incoming.getOutputStream()));
             out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-            out.println("~---------------------------------------------------------------------~");
+            out.println("~--------------------------------------------------------~");
             out.println("~ Welcome to Ouvek's BBS");
-            out.println("~ Enter '/Signup' to sign up");
             out.println("~ There are currently " + synchronizedT.value() + " users online");
-            out.println("~ Enter '/Login' to login");
-            out.println("~ Enter '/Help' to view all commands");
-            out.println("~ Enter '/QuitNow' to disconnect anytime");
-            out.println("~---------------------------------------------------------------------~");
+            out.println("~--------------------------------------------------------~");
+            out.println("/Help : Show all commands");
+            out.println("/Signup : Register a new account (Only allowed on Entry)");
+            out.println("/Login : Login with an existing account");
+            out.println("~--------------------------------------------------------~");
+            out.println("/Lobby : Show 10 newest posts");
+            out.println("/Page : Show different number of posts by tens");
+            out.println("/Read : Read Post by id");
+            out.println("/Game : Play Game");
+            out.println("~--------------------------------------------------------~");
+            out.println("/NewPost : Publish new post (Login Required)");
+            out.println("/QuitNow : Disconnect from server");
+            out.println("~--------------------------------------------------------~");
             out.flush();
             
             String str;
@@ -66,19 +74,19 @@ class ClientThread extends Thread{
                     switch(str.substring(1)){
                         case "Help":
                             out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                            out.println("~---------------------------------------------------------------------~");
+                            out.println("~--------------------------------------------------------~");
                             out.println("/Help : Show all commands");
                             out.println("/Signup : Register a new account (Only allowed on Entry)");
                             out.println("/Login : Login with an existing account");
-                            out.println("~-----------------------------------------~");
+                            out.println("~--------------------------------------------------------~");
                             out.println("/Lobby : Show 10 newest posts");
                             out.println("/Page : Show different number of posts by tens");
                             out.println("/Read : Read Post by id");
                             out.println("/Game : Play Game");
-                            out.println("~-----------------------------------------~");
+                            out.println("~--------------------------------------------------------~");
                             out.println("/NewPost : Publish new post (Login Required)");
                             out.println("/QuitNow : Disconnect from server");
-                            out.println("~---------------------------------------------------------------------~");
+                            out.println("~--------------------------------------------------------~");
                             out.flush();
                             break;
                         case "QuitNow":
@@ -87,17 +95,16 @@ class ClientThread extends Thread{
                             break connection;
                         case "Lobby":
                             out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                            out.println("~---------------------------------------------------------------------~");
-                            out.println("Currently displaying " + page + " Page(s) | use '/Page' command to change page");
-                            out.println("Post id | Title ------ | Content -------------------------------------~");
+                            out.println("~--------------------------------------------------------~");
+                            out.println("Currently displaying " + page*10 + " Posts | use '/Page' command to see more posts");
+                            out.println("Post id | Title ------------------ | Content ------------------------~");
                             boolean ifPosts = getPosts(page);
                             if(ifPosts){
                                 out.println();out.println(content);
-                                out.println("~---------------------------------------------------------------------~");
+                                out.println("~--------------------------------------------------------~");
                                 out.flush();
                             }else{
                                 out.println();out.println("No content yet. Post your own!");
-                                out.println("~---------------------------------------------------------------------~");
                                 out.flush();
                             }
                             out.flush();
@@ -119,6 +126,7 @@ class ClientThread extends Thread{
                                 out.print("New Username:");out.flush();
                                 break;
                             }
+                            break;
                         case "Login":
                             if("-Login".equals(cookie)){
                                 cookie = "-Logging";
@@ -126,6 +134,7 @@ class ClientThread extends Thread{
                                 out.print("Username:");out.flush();
                                 break;
                             }
+                            break;
                         case "Game":
                             cookie = "-Game";
                             out.print("\n\n\n\n\n\n\n\n\n\n\n");
@@ -139,6 +148,12 @@ class ClientThread extends Thread{
                             content = str;
                             break;
                         case "NewPost":
+                            if("-Anon".equals(logged)){
+                                out.println("You must login first to post!");
+                                out.flush();
+                            }
+                            break;
+                        case "Comment":
                             if("-Anon".equals(logged)){
                                 out.println("You must login first to post!");
                                 out.flush();
@@ -220,7 +235,7 @@ class ClientThread extends Thread{
                                         logged = ("-"+newuser);
                                         out.println("Login successful! Welcome back " + newuser);
                                         pass = "";enteredpass = null;
-                                        out.println("~---------------------------------------------------------------------~");
+                                        out.println("~--------------------------------------------------------~");
                                         cookie = "-Logged";
                                         out.println("Enter '/Help' to view all commands");
                                         out.flush();
@@ -250,17 +265,17 @@ class ClientThread extends Thread{
                             if(!"/Page".equals(str) && !"/".equals(str.substring(0,1))){
                                 page = Integer.parseInt(str);
                                 out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                                out.println("~---------------------------------------------------------------------~");
+                                out.println("~--------------------------------------------------------~");
                                 out.println("Currently on Page " + page + " | use '/Page' command to change page");
-                                out.println("Post id | Title ------ | Content -------------------------------------~");
+                                out.println("Post id | Title ------------------ | Content -------------------------------------~");
                                 boolean ifPosts = getPosts(page);
                                 if(ifPosts){
                                     out.println();out.println(content);
-                                    out.println("~---------------------------------------------------------------------~");
+                                    out.println("~--------------------------------------------------------~");
                                     out.flush();
                                 }else{
                                     out.println();out.println("No content yet. Post your own!");
-                                    out.println("~---------------------------------------------------------------------~");
+                                    out.println("~--------------------------------------------------------~");
                                     out.flush();
                                 }
                                 out.flush();
@@ -272,14 +287,14 @@ class ClientThread extends Thread{
                             if(!"/Read".equals(str) && !"/".equals(str.substring(0,1))){
                                 post = Integer.parseInt(str);
                                 out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                                out.println("~---------------------------------------------------------------------~");
+                                out.println("~--------------------------------------------------------~");
                                 boolean ifExist = readPosts(post);
                                 if(ifExist){
                                     out.print(content);
-                                    out.println("~---------------------------------------------------------------------~");
+                                    out.println("~--------------------------------------------------------~");
                                     out.flush();
                                 }else{
-                                    out.println("~---------------------------------------------------------------------~");
+                                    out.println("~--------------------------------------------------------~");
                                     out.println("Post does not exist");
                                     out.flush();
                                 }
@@ -335,7 +350,7 @@ class ClientThread extends Thread{
                 }if(("-"+newuser).equals(logged)){
                     switch(str){
                         case "/NewPost":
-                            out.println("~---------------------------------------------------------------------~");
+                            out.println("~--------------------------------------------------------~");
                             out.println("To create posts, do the following:");
                             out.println("/PostTitle : Set the title for your new post");
                             out.flush();
@@ -359,13 +374,14 @@ class ClientThread extends Thread{
                             boolean newpost = synchronizedT.insertPost(postTitle,postContent,newuser,usernum);
                             if(newpost){
                                 out.println("Successfully added new post!");
-                                out.println("~---------------------------------------------------------------------~");
                                 out.flush();
                             }else{
                                 out.println("Sorry, something went wrong. We apologize for your inconvenience.");
-                                out.println("~---------------------------------------------------------------------~");
                                 out.flush();
                             }
+                            break;
+                        case "/Comment":
+                            
                             break;
                         default:
                             break;
@@ -432,18 +448,25 @@ class ClientThread extends Thread{
             if(postexist == 1){
                 content = "";
                 while(rs.next()){
+                    
+                    int title_diff = 20 - rs.getString("title").length();
+                    String ttlsp = " ";
+                    for(int i = 0; i < title_diff; i++){
+                        ttlsp = " "+ ttlsp;
+                    }
+                    
+                            
                     if(rs.getString("title").length() <= 20){
-                        if(rs.getString("content").length() <= 40){
-                            content = content + rs.getInt("post_id") + "       " + rs.getString("title") + "\t\t" + rs.getString("content") +"\r\n";
+                        if(rs.getString("content").length() <= 35){
+                            content = content + rs.getInt("post_id") + "       " + rs.getString("title") + ttlsp + "       " + rs.getString("content") +"\r\n";
                         }else{
-                            content = content + rs.getInt("post_id") + "       " + rs.getString("title") + "\t\t" + rs.getString("content").substring(0, 35) +"\r\n";
+                            content = content + rs.getInt("post_id") + "       " + rs.getString("title") + ttlsp + "       " + rs.getString("content").substring(0, 35) +"\r\n";
                         }
-                        
                     }else{
-                        if(rs.getString("content").length() <= 40){
-                            content = content + rs.getInt("post_id") + "       " + rs.getString("title").substring(0, 21) + "\t\t" + rs.getString("content") +"\r\n";
+                        if(rs.getString("content").length() <= 35){
+                            content = content + rs.getInt("post_id") + "       " + rs.getString("title").substring(0, 21) + "       " + rs.getString("content") +"\r\n";
                         }else{
-                            content = content + rs.getInt("post_id") + "       " + rs.getString("title").substring(0, 21) + "\t\t" + rs.getString("content").substring(0, 35) +"\r\n";
+                            content = content + rs.getInt("post_id") + "       " + rs.getString("title").substring(0, 21) + "       " + rs.getString("content").substring(0, 35) +"\r\n";
                         }
                         
                     }
